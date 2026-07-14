@@ -1,4 +1,5 @@
-const { Schema, model } = require("mongoose");
+const mongoose = require("mongoose");
+const { Schema, model } = mongoose;
 
 const notificationSchema = new Schema(
     {
@@ -30,4 +31,4 @@ const notificationSchema = new Schema(
     }
 );
 
-module.exports = model("Notification", notificationSchema);
+module.exports = mongoose.models.Notification || model("Notification", notificationSchema);

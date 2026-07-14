@@ -1,4 +1,5 @@
-const { Schema, model } = require("mongoose");
+const mongoose = require("mongoose");
+const { Schema, model } = mongoose;
 
 const assignmentSchema = new Schema(
     {
@@ -22,8 +23,12 @@ const assignmentSchema = new Schema(
 
         status: {
             type: String,
-            enum: ["PENDING", "IN_PROGRESS", "COMPLETED"],
+            enum: ["PENDING", "IN_PROGRESS", "PENDING_VERIFICATION", "COMPLETED"],
             default: "PENDING",
+        },
+
+        summary: {
+            type: String,
         },
 
         assignedAt: {
@@ -40,4 +45,4 @@ const assignmentSchema = new Schema(
     }
 );
 
-module.exports = model("Assignment", assignmentSchema);
+module.exports = mongoose.models.Assignment || model("Assignment", assignmentSchema);

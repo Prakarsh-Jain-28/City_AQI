@@ -1,4 +1,5 @@
-const { Schema, model } = require("mongoose");
+const mongoose = require("mongoose");
+const { Schema, model } = mongoose;
 
 const hotspotSchema = new Schema(
     {
@@ -64,4 +65,4 @@ const hotspotSchema = new Schema(
     }
 );
 
-module.exports = model("Hotspot", hotspotSchema);
+module.exports = mongoose.models.Hotspot || model("Hotspot", hotspotSchema);

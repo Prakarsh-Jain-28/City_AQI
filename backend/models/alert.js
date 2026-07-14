@@ -1,4 +1,5 @@
-const { Schema, model } = require("mongoose");
+const mongoose = require("mongoose");
+const { Schema, model } = mongoose;
 
 const alertSchema = new Schema(
     {
@@ -40,6 +41,16 @@ const alertSchema = new Schema(
         isActive: {
             type: Boolean,
             default: true,
+        },
+
+        durationHours: {
+            type: Number,
+            default: 24,
+        },
+
+        advisories: {
+            type: [String],
+            default: [],
         },
     },
     {

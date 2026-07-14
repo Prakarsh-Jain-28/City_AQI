@@ -1,20 +1,34 @@
 const { Server } = require("socket.io");
+const EVENTS = require("./socketEvents");
 
 let io;
 
 const initSocket = (server) => {
     io = new Server(server, {
         cors: {
-            origin: "*"
+            origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+            credentials: true,
         }
     });
 
     io.on("connection", (socket) => {
 
-        console.log("Connected:", socket.id);
+        // Join admin room
+        socket.on("joinAdmin", () => {
+            socket.join("admin");
+        });
+
+        // Join city-specific room
+        socket.on("joinCity", (city) => {
+            socket.join(`city_${city}`);
+        });
+
+        // Join user-specific room
+        socket.on("joinUser", (userId) => {
+            socket.join(`user_${userId}`);
+        });
 
         socket.on("disconnect", () => {
-            console.log("Disconnected:", socket.id);
         });
 
     });
