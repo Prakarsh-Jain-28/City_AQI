@@ -1,0 +1,6 @@
+getAssignments()
+getAssignment()
+createAssignment()
+updateAssignment()
+deleteAssignment()
+getOfficerAssignments()

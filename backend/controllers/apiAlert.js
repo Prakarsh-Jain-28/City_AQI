@@ -1,0 +1,6 @@
+getAllAlerts()
+getAlertById()
+createAlert()
+updateAlert()
+deleteAlert()
+broadcastAlert()

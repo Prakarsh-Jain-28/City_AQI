@@ -1,5 +1,5 @@
 // GET    /
 // GET    /:id
 // POST   /
-// PUT    /:id/read
+// PUT    /:id
 // DELETE /:id

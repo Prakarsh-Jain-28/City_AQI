@@ -1,0 +1,6 @@
+getHotspots()
+getHotspot()
+createHotspot()
+updateHotspot()
+deleteHotspot()
+getCriticalHotspots()

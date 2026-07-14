@@ -1,0 +1,26 @@
+# Secrets - never commit real credentials
+.env
+
+# Frontend - lives in a separate repo/folder, not committed here
+dashboard.html
+
+# Raw/large data - regenerate via data/fetch_openaq_multicity.py
+*.csv
+
+# Generated model weights - regenerate via train_multi_horizon.py
+# (comment these two lines out if you WANT to commit trained weights
+# for a reproducible demo without retraining)
+models/*.json
+!models/feature_cols.json
+
+# Generated charts - regenerate via analysis/generate_report_charts.py
+outputs/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# API logs
+api_server.log

@@ -3,4 +3,4 @@
 // POST   /
 // PUT    /:id
 // DELETE /:id
-// GET    /officer/:officerId
+// GET    /zone/:zone

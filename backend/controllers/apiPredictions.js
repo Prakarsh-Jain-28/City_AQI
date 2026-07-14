@@ -1,0 +1,5 @@
+getPredictions()
+getPrediction()
+createPrediction()
+updatePrediction()
+deletePrediction()

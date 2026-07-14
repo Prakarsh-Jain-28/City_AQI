@@ -1,0 +1,5 @@
+getStations()
+getStation()
+createStation()
+updateStation()
+deleteStation()

@@ -10,6 +10,5 @@ Officers /api/officers
 Assignment /api/assignments
 Reports /api/reports
 
-bcrypt password hashing
 
 Phase 6 — AI Integration Layer

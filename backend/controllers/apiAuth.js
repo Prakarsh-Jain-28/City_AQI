@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const {setUser} = require("../services/auth")
+const bcrypt = require("bcrypt")
 
 
 async function AuthorityRegister(req, res) {
@@ -16,14 +17,16 @@ async function AuthorityRegister(req, res) {
             });
         }
 
+        const hash = await bcrypt.hash(password,Number(process.env.SALT_ROUNDS))
+
         const user = await User.create({
-            name,
-            email,
-            password,
-            role,
-            city,
-            phone,
-        });
+                name,
+                email,
+                password: hash,
+                role,
+                city,
+                phone,
+            });
 
         return res.status(201).json({
             message: "Authority Registered Successfully",
@@ -38,9 +41,20 @@ async function AuthorityRegister(req, res) {
 
 async function AuthorityLogin(req, res) {
     try {
-        const { email, password } = req.body;
+        const { email, password , phone } = req.body;
 
-        const user = await User.findOne({ email });
+        if (!email && !phone) {
+            return res.status(400).json({
+                message: "Provide either email or phone.",
+            });
+        }
+
+        const user = await User.findOne({
+            $or: [
+                { email },
+                { phone }
+            ]
+        });
 
         if (!user) {
             return res.status(404).json({
@@ -48,7 +62,9 @@ async function AuthorityLogin(req, res) {
             });
         }
 
-        if (user.password !== password) {
+        const result = await bcrypt.compare(password,user.password);
+
+        if (!result) {
             return res.status(401).json({
                 message: "Invalid Password",
             });
