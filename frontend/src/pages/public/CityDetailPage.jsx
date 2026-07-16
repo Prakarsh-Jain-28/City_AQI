@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { getPublicCityDetail, getPublicCityHistory } from "../../api/publicApi";
 import { getAqiColor, getAqiCategory } from "../../utils/aqiHelpers";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from "recharts";
-import { FiWind, FiActivity, FiAlertTriangle, FiHeart, FiTrendingUp, FiMapPin } from "react-icons/fi";
+import { FiWind, FiActivity, FiAlertTriangle, FiHeart, FiTrendingUp, FiMapPin, FiShield, FiUser, FiBriefcase } from "react-icons/fi";
 
 export default function CityDetailPage() {
     const { cityName } = useParams();
@@ -28,12 +28,12 @@ export default function CityDetailPage() {
     if (!data) return <div className="empty-state glass-panel"><p>No data found for {cityName}</p></div>;
 
     const pollutants = [
-        { label: "PM2.5", value: data.pollutants.PM25, unit: "µg/m³", max: 250, color: "#ef4444" },
-        { label: "PM10", value: data.pollutants.PM10, unit: "µg/m³", max: 430, color: "#f97316" },
-        { label: "NO₂", value: data.pollutants.NO2, unit: "µg/m³", max: 280, color: "#8b5cf6" },
-        { label: "SO₂", value: data.pollutants.SO2, unit: "µg/m³", max: 380, color: "#3b82f6" },
-        { label: "CO", value: data.pollutants.CO, unit: "mg/m³", max: 200, color: "#10b981" },
-        { label: "O₃", value: data.pollutants.O3, unit: "µg/m³", max: 300, color: "#f59e0b" },
+        { label: "PM2.5", value: data.pollutants.PM25, unit: "µg/m³", max: 250, color: "var(--primary)" },
+        { label: "PM10", value: data.pollutants.PM10, unit: "µg/m³", max: 430, color: "var(--primary)" },
+        { label: <span>NO<sub>2</sub></span>, value: data.pollutants.NO2, unit: "µg/m³", max: 280, color: "var(--primary)" },
+        { label: <span>SO<sub>2</sub></span>, value: data.pollutants.SO2, unit: "µg/m³", max: 380, color: "var(--primary)" },
+        { label: "CO", value: data.pollutants.CO, unit: "mg/m³", max: 200, color: "var(--primary)" },
+        { label: <span>O<sub>3</sub></span>, value: data.pollutants.O3, unit: "µg/m³", max: 300, color: "var(--primary)" },
     ];
 
     const forecasts = data.prediction?.forecasts ? Object.entries(data.prediction.forecasts) : [];
@@ -54,18 +54,16 @@ export default function CityDetailPage() {
                     <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", marginTop: 8 }}>Current Air Quality Index</p>
                 </div>
 
-                <div className="glass-panel" style={{ padding: 24 }}>
+                <div className="glass-panel" style={{ padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     <h3 style={{ marginBottom: 16 }}><FiWind style={{ marginRight: 8 }} />Pollutant Levels</h3>
                     <div className="pollutant-bars">
-                        {pollutants.map(p => (
-                            <div key={p.label} className="pollutant-bar-item">
-                                <div className="pollutant-bar-header">
-                                    <span style={{ fontWeight: 600 }}>{p.label}</span>
-                                    <span style={{ color: "var(--text-secondary)" }}>{p.value} {p.unit}</span>
-                                </div>
+                        {pollutants.map((p, i) => (
+                            <div key={i} className="pollutant-row">
+                                <span style={{ fontWeight: 600 }}>{p.label}</span>
                                 <div className="pollutant-bar-track">
                                     <div className="pollutant-bar-fill" style={{ width: `${Math.min(100, (p.value / p.max) * 100)}%`, background: p.color }}></div>
                                 </div>
+                                <span style={{ color: "var(--text-secondary)", textAlign: "right" }}>{p.value} {p.unit}</span>
                             </div>
                         ))}
                     </div>
@@ -124,16 +122,37 @@ export default function CityDetailPage() {
             {/* Health Advisory */}
             {data.healthAdvisory && (
                 <section className="glass-panel section-pad">
-                    <h3><FiHeart style={{ marginRight: 8 }} />Health Advisory</h3>
+                    <h3><FiHeart style={{ marginRight: 8 }} />Health Advisories for {cityName}</h3>
+                    <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", marginBottom: 20, marginTop: 4 }}>
+                        Personalized recommendations based on current AQI of <strong style={{ color: "var(--text-primary)" }}>{data.avgAQI}</strong> ({getAqiCategory(data.avgAQI)})
+                    </p>
                     <div className="health-advisory-grid">
-                        {["children", "seniorCitizens", "outdoorWorkers", "asthmaPatients", "generalPublic"].map(group => (
-                            data.healthAdvisory[group] && (
-                                <div key={group} className="advisory-card glass-card">
-                                    <h4 style={{ textTransform: "capitalize" }}>{group.replace(/([A-Z])/g, " $1")}</h4>
-                                    <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem" }}>{data.healthAdvisory[group]}</p>
+                        {[
+                            { key: "children",       label: "Children",        icon: "👶" },
+                            { key: "seniorCitizens", label: "Senior Citizens",  icon: "👴" },
+                            { key: "outdoorWorkers", label: "Outdoor Workers",  icon: "👷" },
+                            { key: "asthmaPatients", label: "Asthma Patients",  icon: "🫁" },
+                        ].map(({ key, label, icon }) => (
+                            data.healthAdvisory[key] && (
+                                <div key={key} className="advisory-card glass-card">
+                                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                                        <span style={{ fontSize: "1.4rem" }}>{icon}</span>
+                                        <h4 style={{ margin: 0 }}>{label}</h4>
+                                    </div>
+                                    <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", margin: 0 }}>{data.healthAdvisory[key]}</p>
                                 </div>
                             )
                         ))}
+                        {/* General Public spans full width */}
+                        {data.healthAdvisory.generalPublic && (
+                            <div className="advisory-card advisory-card-full glass-card">
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, textAlign: 'center', flexShrink: 0 }}>
+                                    <span style={{ fontSize: "2.2rem" }}>🌍</span>
+                                    <h4 style={{ margin: 0, whiteSpace: 'nowrap' }}>General Public</h4>
+                                </div>
+                                <p style={{ color: "var(--text-secondary)", fontSize: "0.88rem", margin: 0, lineHeight: 1.7 }}>{data.healthAdvisory.generalPublic}</p>
+                            </div>
+                        )}
                     </div>
                 </section>
             )}

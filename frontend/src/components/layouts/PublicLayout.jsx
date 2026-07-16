@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { FiWind, FiMapPin, FiBarChart2, FiLayers, FiInfo, FiMail, FiMenu, FiX, FiAlertTriangle } from "react-icons/fi";
+import { FiWind, FiMapPin, FiBarChart2, FiLayers, FiInfo, FiMail, FiMenu, FiX, FiAlertTriangle, FiSun, FiMoon } from "react-icons/fi";
 import { useState } from "react";
+import { useTheme } from "../../context/ThemeContext";
 
 const navLinks = [
     { path: "/", label: "Home", icon: <FiWind /> },
@@ -15,13 +16,20 @@ const navLinks = [
 export default function PublicLayout() {
     const location = useLocation();
     const [mobileOpen, setMobileOpen] = useState(false);
+    const { theme, toggleTheme } = useTheme();
 
     return (
         <div className="public-layout">
+            {/* Ambient glow blobs — bleed through glassmorphic cards */}
+            <div className="glow-layer">
+                <div className="glow-blob glow-blob-1" />
+                <div className="glow-blob glow-blob-2" />
+                <div className="glow-blob glow-blob-3" />
+            </div>
+
             <nav className="public-nav glass-panel">
-                <Link to="/" className="nav-brand">
+                <Link to="/" className="nav-brand" style={{ textDecoration: 'none' }}>
                     <div className="logo-badge">CityAQI</div>
-                    <span className="brand-text">Air Quality Intelligence</span>
                 </Link>
                 <div className={`nav-links ${mobileOpen ? "open" : ""}`}>
                     {navLinks.map((link) => (
@@ -34,6 +42,9 @@ export default function PublicLayout() {
                             {link.icon} {link.label}
                         </Link>
                     ))}
+                    <button className="theme-toggle-btn" onClick={toggleTheme} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: '8px', marginLeft: '12px' }}>
+                        {theme === 'dark' ? <FiSun size={20} /> : <FiMoon size={20} />}
+                    </button>
                 </div>
                 <button className="mobile-toggle" onClick={() => setMobileOpen(!mobileOpen)}>
                     {mobileOpen ? <FiX size={22} /> : <FiMenu size={22} />}

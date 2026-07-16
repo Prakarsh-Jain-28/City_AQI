@@ -1,8 +1,23 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getPublicCities } from "../../api/publicApi";
-import { getAqiColor, getAqiCategory, getAqiEmoji } from "../../utils/aqiHelpers";
-import { FiSearch, FiMapPin } from "react-icons/fi";
+import { getAqiColor, getAqiCategory } from "../../utils/aqiHelpers";
+import { FiSearch, FiMapPin, FiWind, FiActivity, FiArrowRight } from "react-icons/fi";
+
+/* ── Pollutant cell component ── */
+const PollutantPill = ({ label, value, unit = "µg/m³" }) => (
+    <div style={{
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+        padding: "6px 10px", borderRadius: 6,
+        background: "var(--hover-bg)", border: "1px solid var(--border-glass)",
+        fontSize: "0.8rem"
+    }}>
+        <span style={{ color: "var(--text-muted)", fontWeight: 700, letterSpacing: "0.05em" }}>{label}</span>
+        <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>
+            {value ?? "—"} <span style={{ fontSize: "0.65rem", color: "var(--text-muted)", fontWeight: 400 }}>{unit}</span>
+        </span>
+    </div>
+);
 
 export default function CitiesPage() {
     const [cities, setCities] = useState([]);
@@ -21,43 +36,134 @@ export default function CitiesPage() {
 
     return (
         <div className="page-container">
-            <div className="page-header">
-                <h1><FiMapPin /> Air Quality Index — All Cities</h1>
-                <p style={{ color: "var(--text-secondary)" }}>Click on any city to view detailed air quality data, forecasts, and health advisories.</p>
+
+            {/* ── Page Header ── */}
+            <div className="page-header" style={{ marginBottom: 32 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                    <div className="logo-badge">CityAQI Live Directory</div>
+                    <div style={{
+                        display: "flex", alignItems: "center", gap: 6,
+                        padding: "6px 12px", borderRadius: 20,
+                        background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.25)",
+                        fontSize: "0.75rem", fontWeight: 700, color: "#10b981"
+                    }}>
+                        <FiActivity size={12} /> Real-time CPCB ingestion active
+                    </div>
+                </div>
+
+                <h1 style={{ fontSize: "2.4rem", marginBottom: 12 }}>Air Quality Index Tracker</h1>
+                <p style={{ color: "var(--text-secondary)", fontSize: "1.05rem", maxWidth: 650, lineHeight: 1.7 }}>
+                    Browse real-time ambient air quality indices aggregated across all active CPCB monitoring stations. Select any city to view comprehensive pollutant breakdowns, 72-hour AI forecasts, and targeted health advisories.
+                </p>
             </div>
-            <div className="search-bar glass-panel">
-                <FiSearch size={18} />
-                <input type="text" placeholder="Search cities..." value={search} onChange={e => setSearch(e.target.value)} />
+
+            {/* ── Premium Search Bar ── */}
+            <div className="premium-search-wrapper">
+                <FiSearch className="search-icon" />
+                <input
+                    type="text"
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    placeholder="Search for a city or monitored region..."
+                    className="premium-search-input"
+                />
             </div>
+
+            {/* ── Results Grid ── */}
             {filtered.length === 0 ? (
-                <div className="empty-state glass-panel"><p>No cities found matching "{search}"</p></div>
+                <div className="glass-panel" style={{ padding: "40px 24px", textAlign: "center" }}>
+                    <FiMapPin size={32} style={{ color: "var(--text-muted)", marginBottom: 16 }} />
+                    <h3 style={{ marginBottom: 8 }}>No regions found</h3>
+                    <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem" }}>
+                        We couldn't find any monitored cities matching "{search}".
+                    </p>
+                </div>
             ) : (
-                <div className="cities-grid">
-                    {filtered.map((city) => (
-                        <Link to={`/city/${city.city}`} key={city.city} className="city-card glass-panel">
-                            <div className="city-card-header">
-                                <h3>{city.city}</h3>
-                                <span className="aqi-emoji">{getAqiEmoji(city.avgAQI)}</span>
-                            </div>
-                            <div className="city-aqi-display" style={{ color: getAqiColor(city.avgAQI) }}>
-                                {city.avgAQI}
-                            </div>
-                            <div className="city-category" style={{ background: `${getAqiColor(city.avgAQI)}18`, color: getAqiColor(city.avgAQI) }}>
-                                {getAqiCategory(city.avgAQI)}
-                            </div>
-                            <div className="city-pollutants">
-                                <span>PM2.5: {city.avgPM25} µg/m³</span>
-                                <span>PM10: {city.avgPM10} µg/m³</span>
-                            </div>
-                            <div className="city-pollutants" style={{ marginTop: 4 }}>
-                                <span>NO₂: {city.avgNO2}</span>
-                                <span>SO₂: {city.avgSO2}</span>
-                                <span>CO: {city.avgCO}</span>
-                                <span>O₃: {city.avgO3}</span>
-                            </div>
-                            <div className="city-stations">{city.stationCount} monitoring stations</div>
-                        </Link>
-                    ))}
+                <div style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+                    gap: 24
+                }}>
+                    {filtered.map((city) => {
+                        const aqiColor = getAqiColor(city.avgAQI);
+                        const category = getAqiCategory(city.avgAQI);
+                        
+                        return (
+                            <Link 
+                                to={`/city/${city.city}`} 
+                                key={city.city} 
+                                className="glass-panel"
+                                style={{
+                                    display: "block",
+                                    padding: 24,
+                                    borderTop: `4px solid ${aqiColor}`,
+                                    textDecoration: "none",
+                                    position: "relative",
+                                    overflow: "hidden"
+                                }}
+                            >
+                                {/* Subtle background glow based on AQI */}
+                                <div style={{
+                                    position: "absolute", top: -30, right: -30,
+                                    width: 120, height: 120, borderRadius: "50%",
+                                    background: `${aqiColor}15`, filter: "blur(30px)",
+                                    pointerEvents: "none"
+                                }} />
+
+                                {/* Header row */}
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+                                    <div>
+                                        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.72rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>
+                                            <FiMapPin size={11} /> Monitored Region
+                                        </div>
+                                        <h2 style={{ margin: 0, fontSize: "1.4rem", color: "var(--text-primary)" }}>{city.city}</h2>
+                                    </div>
+                                    <div style={{
+                                        padding: "4px 12px", borderRadius: 20, fontSize: "0.75rem", fontWeight: 800,
+                                        background: `${aqiColor}15`, color: aqiColor, border: `1px solid ${aqiColor}30`,
+                                        letterSpacing: "0.04em"
+                                    }}>
+                                        {category}
+                                    </div>
+                                </div>
+
+                                {/* Main AQI Display */}
+                                <div style={{ display: "flex", alignItems: "flex-end", gap: 12, marginBottom: 24 }}>
+                                    <div style={{ fontSize: "3.5rem", fontWeight: 900, lineHeight: 0.8, color: aqiColor, letterSpacing: "-0.03em" }}>
+                                        {city.avgAQI}
+                                    </div>
+                                    <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", paddingBottom: 4 }}>
+                                        Composite AQI
+                                    </div>
+                                </div>
+
+                                {/* Pollutants Grid */}
+                                <div style={{ marginBottom: 20 }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.78rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 10 }}>
+                                        <FiWind size={13} /> Key Pollutants
+                                    </div>
+                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                                        <PollutantPill label="PM2.5" value={city.avgPM25} />
+                                        <PollutantPill label="PM10" value={city.avgPM10} />
+                                        <PollutantPill label="NO₂" value={city.avgNO2} unit="ppb" />
+                                        <PollutantPill label="CO" value={city.avgCO} unit="mg/m³" />
+                                    </div>
+                                </div>
+
+                                {/* Footer row */}
+                                <div style={{ 
+                                    display: "flex", justifyContent: "space-between", alignItems: "center", 
+                                    paddingTop: 16, borderTop: "1px solid var(--border-glass)",
+                                    fontSize: "0.8rem", color: "var(--text-muted)"
+                                }}>
+                                    <span>{city.stationCount} active station{city.stationCount !== 1 ? 's' : ''}</span>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 4, color: "var(--primary)", fontWeight: 600 }}>
+                                        View Details <FiArrowRight size={14} />
+                                    </div>
+                                </div>
+                            </Link>
+                        );
+                    })}
                 </div>
             )}
         </div>
