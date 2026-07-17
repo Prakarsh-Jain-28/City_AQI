@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { SocketProvider } from "./context/SocketContext";
+import { ThemeProvider } from "./context/ThemeContext";
 
 // Layouts
 import PublicLayout from "./components/layouts/PublicLayout";
@@ -49,48 +50,50 @@ function ProtectedRoute({ children }) {
 export default function App() {
     return (
         <BrowserRouter>
-            <SocketProvider>
-                <AuthProvider>
-                    <Routes>
-                        {/* Public Routes */}
-                        <Route element={<PublicLayout />}>
-                            <Route path="/" element={<HomePage />} />
-                            <Route path="/aqi" element={<CitiesPage />} />
-                            <Route path="/city/:cityName" element={<CityDetailPage />} />
-                            <Route path="/predictions" element={<PredictionsPage />} />
-                            <Route path="/compare" element={<ComparePage />} />
-                            <Route path="/about" element={<AboutPage />} />
-                            <Route path="/contact" element={<ContactPage />} />
-                            <Route path="/alerts" element={<PublicAlertsPage />} />
-                        </Route>
+            <ThemeProvider>
+                <SocketProvider>
+                    <AuthProvider>
+                        <Routes>
+                            {/* Public Routes */}
+                            <Route element={<PublicLayout />}>
+                                <Route path="/" element={<HomePage />} />
+                                <Route path="/aqi" element={<CitiesPage />} />
+                                <Route path="/city/:cityName" element={<CityDetailPage />} />
+                                <Route path="/predictions" element={<PredictionsPage />} />
+                                <Route path="/compare" element={<ComparePage />} />
+                                <Route path="/about" element={<AboutPage />} />
+                                <Route path="/contact" element={<ContactPage />} />
+                                <Route path="/alerts" element={<PublicAlertsPage />} />
+                            </Route>
 
-                        {/* Admin Login & Register */}
-                        <Route path="/admin/login" element={<AdminLogin />} />
-                        <Route path="/admin/register" element={<AdminRegister />} />
+                            {/* Admin Login & Register */}
+                            <Route path="/admin/login" element={<AdminLogin />} />
+                            <Route path="/admin/register" element={<AdminRegister />} />
 
-                        {/* Admin Protected Routes */}
-                        <Route path="/admin" element={
-                            <ProtectedRoute>
-                                <AdminLayout />
-                            </ProtectedRoute>
-                        }>
-                            <Route index element={<Navigate to="/admin/dashboard" replace />} />
-                            <Route path="dashboard" element={<Dashboard />} />
-                            <Route path="monitoring" element={<AdminMonitoringPredictions />} />
-                            <Route path="stations" element={<StationsManagement />} />
-                            <Route path="hotspots" element={<HotspotsManagement />} />
-                            <Route path="assignments" element={<AssignmentsManagement />} />
-                            <Route path="alerts" element={<AlertsManagement />} />
-                            <Route path="notifications" element={<NotificationsPage />} />
-                            <Route path="chat" element={<ChatPage />} />
-                            <Route path="reports" element={<ReportsPage />} />
-                            <Route path="officials" element={<OfficialsManagement />} />
-                            <Route path="settings" element={<SettingsPage />} />
-                            <Route path="profile" element={<ProfilePage />} />
-                        </Route>
-                    </Routes>
-                </AuthProvider>
-            </SocketProvider>
+                            {/* Admin Protected Routes */}
+                            <Route path="/admin" element={
+                                <ProtectedRoute>
+                                    <AdminLayout />
+                                </ProtectedRoute>
+                            }>
+                                <Route index element={<Navigate to="/admin/dashboard" replace />} />
+                                <Route path="dashboard" element={<Dashboard />} />
+                                <Route path="monitoring" element={<AdminMonitoringPredictions />} />
+                                <Route path="stations" element={<StationsManagement />} />
+                                <Route path="hotspots" element={<HotspotsManagement />} />
+                                <Route path="assignments" element={<AssignmentsManagement />} />
+                                <Route path="alerts" element={<AlertsManagement />} />
+                                <Route path="notifications" element={<NotificationsPage />} />
+                                <Route path="chat" element={<ChatPage />} />
+                                <Route path="reports" element={<ReportsPage />} />
+                                <Route path="officials" element={<OfficialsManagement />} />
+                                <Route path="settings" element={<SettingsPage />} />
+                                <Route path="profile" element={<ProfilePage />} />
+                            </Route>
+                        </Routes>
+                    </AuthProvider>
+                </SocketProvider>
+            </ThemeProvider>
         </BrowserRouter>
     );
 }

@@ -1,27 +1,42 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getPublicCities, getPublicActiveAlerts } from "../../api/publicApi";
-import { getAqiColor, getAqiCategory, getAqiEmoji } from "../../utils/aqiHelpers";
-import { FiWind, FiAlertTriangle, FiArrowRight, FiActivity, FiShield, FiHeart, FiMapPin, FiTrendingUp } from "react-icons/fi";
+import { getAqiColor, getAqiCategory } from "../../utils/aqiHelpers";
+import { FiAlertTriangle, FiArrowRight, FiActivity, FiShield, FiHeart, FiMapPin, FiTrendingUp, FiWind, FiAlertCircle, FiUsers, FiClock } from "react-icons/fi";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination, EffectCoverflow } from "swiper/modules";
+import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
-import "swiper/css/effect-coverflow";
 
 const aqiCategories = [
-    { range: "0-50", label: "Good", color: "#10b981", desc: "Minimal impact" },
-    { range: "51-100", label: "Satisfactory", color: "#84cc16", desc: "Minor breathing discomfort to sensitive people" },
-    { range: "101-200", label: "Moderate", color: "#f59e0b", desc: "Breathing discomfort to people with lung/heart disease" },
-    { range: "201-300", label: "Poor", color: "#f97316", desc: "Breathing discomfort on prolonged exposure" },
-    { range: "301-400", label: "Very Poor", color: "#ef4444", desc: "Respiratory illness on prolonged exposure" },
-    { range: "401-500", label: "Severe", color: "#a855f7", desc: "Affects healthy people, serious impact on sensitive" },
+    { range: "0–50", label: "Good", color: "#10b981", desc: "Minimal health impact" },
+    { range: "51–100", label: "Satisfactory", color: "#84cc16", desc: "Minor breathing discomfort to sensitive people" },
+    { range: "101–200", label: "Moderate", color: "#f59e0b", desc: "Breathing discomfort to people with lung/heart disease" },
+    { range: "201–300", label: "Poor", color: "#f97316", desc: "Breathing discomfort on prolonged exposure" },
+    { range: "301–400", label: "Very Poor", color: "#ef4444", desc: "Respiratory illness on prolonged exposure" },
+    { range: "401–500", label: "Severe", color: "#a855f7", desc: "Affects healthy people, serious impact on sensitive" },
 ];
+
+/* ── Pollutant Pill ── */
+const PollutantPill = ({ label, value, unit = "µg/m³" }) => (
+    <div style={{
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+        padding: "6px 10px", borderRadius: 6,
+        background: "var(--hover-bg)", border: "1px solid var(--border-glass)",
+        fontSize: "0.8rem"
+    }}>
+        <span style={{ color: "var(--text-muted)", fontWeight: 700, letterSpacing: "0.05em" }}>{label}</span>
+        <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>
+            {value ?? "—"} <span style={{ fontSize: "0.65rem", color: "var(--text-muted)", fontWeight: 400 }}>{unit}</span>
+        </span>
+    </div>
+);
 
 export default function HomePage() {
     const [cities, setCities] = useState([]);
     const [alerts, setAlerts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [sortOption, setSortOption] = useState("highest");
 
     useEffect(() => {
         Promise.all([
@@ -34,11 +49,16 @@ export default function HomePage() {
         });
     }, []);
 
-    const topPolluted = [...cities].sort((a, b) => b.avgAQI - a.avgAQI).slice(0, 6);
+    const sortedCities = [...cities].sort((a, b) => {
+        if (sortOption === "highest") return b.avgAQI - a.avgAQI;
+        if (sortOption === "lowest") return a.avgAQI - b.avgAQI;
+        return a.city.localeCompare(b.city);
+    });
 
     return (
         <div className="home-page">
-            {/* Hero Section */}
+            
+            {/* ── HERO SECTION ── */}
             <section className="hero-section">
                 <div className="hero-bg-effects">
                     <div className="hero-orb orb-1"></div>
@@ -46,185 +66,223 @@ export default function HomePage() {
                     <div className="hero-orb orb-3"></div>
                 </div>
                 <div className="hero-content">
-                    <div className="hero-badge">🌍 AI-Powered Platform</div>
+                    <div className="hero-badge">🌍 ET AI Hackathon 2026</div>
                     <h1 className="hero-title">
                         Urban Air Quality<br />
                         <span className="gradient-text">Intelligence Platform</span>
                     </h1>
                     <p className="hero-subtitle">
                         Real-time AQI monitoring, AI-based pollution source attribution, hyperlocal forecasting,
-                        and health advisories for Indian cities. Empowering citizens and officials with actionable data.
+                        and statutory health advisories for Indian cities. Empowering citizens and officials with actionable data.
                     </p>
                     <div className="hero-actions">
-                        <Link to="/aqi" className="btn btn-primary">
-                            <FiActivity size={18} /> Explore AQI Data <FiArrowRight size={16} />
+                        <Link to="/aqi" className="btn btn-primary" style={{ height: 46 }}>
+                            <FiActivity size={18} /> Live Directory <FiArrowRight size={16} />
                         </Link>
-                        <Link to="/predictions" className="btn btn-secondary">
-                            <FiTrendingUp size={18} /> View Predictions
+                        <Link to="/predictions" className="btn btn-secondary" style={{ height: 46 }}>
+                            <FiTrendingUp size={18} /> AI Forecasts
                         </Link>
                     </div>
+                    
                     <div className="hero-stats">
                         <div className="stat-item">
                             <span className="stat-value">{cities.length || "10+"}</span>
-                            <span className="stat-label">Cities Monitored</span>
+                            <span className="stat-label">Monitored Regions</span>
                         </div>
                         <div className="stat-item">
                             <span className="stat-value">{cities.reduce((s, c) => s + c.stationCount, 0) || "50+"}</span>
-                            <span className="stat-label">Active Stations</span>
+                            <span className="stat-label">CPCB Stations</span>
                         </div>
                         <div className="stat-item">
                             <span className="stat-value">24/7</span>
-                            <span className="stat-label">Live Monitoring</span>
+                            <span className="stat-label">Live Telemetry</span>
                         </div>
                         <div className="stat-item">
                             <span className="stat-value">72h</span>
-                            <span className="stat-label">Forecast Range</span>
+                            <span className="stat-label">Forecast Horizon</span>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* Live Alerts */}
+            {/* ── LIVE ALERTS ── */}
             {alerts.length > 0 && (
-                <section className="section">
-                    <h2 className="section-title"><FiAlertTriangle /> Live Alerts</h2>
+                <section className="section" style={{ maxWidth: 1400, margin: "0 auto", padding: "0 24px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24, paddingBottom: 16, borderBottom: "1px solid var(--border-glass)" }}>
+                        <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#ef4444", boxShadow: "0 0 10px #ef4444" }} />
+                        <h2 style={{ margin: 0 }}>Emergency Broadcasts</h2>
+                    </div>
+                    
                     <Swiper
                         modules={[Autoplay, Pagination]}
-                        spaceBetween={20}
+                        spaceBetween={24}
                         slidesPerView={1}
                         breakpoints={{
                             640: { slidesPerView: 2 },
                             1024: { slidesPerView: 3 },
                         }}
-                        autoplay={{ delay: 3000, disableOnInteraction: false }}
+                        autoplay={{ delay: 4000, disableOnInteraction: false }}
                         pagination={{ clickable: true }}
-                        style={{ paddingBottom: '40px' }}
+                        style={{ paddingBottom: '48px' }}
                     >
-                        {alerts.map((alert, i) => (
-                            <SwiperSlide key={i}>
-                                <Link to={`/alerts?city=${alert.targetArea}`} className="alert-card glass-panel" style={{ display: 'block', textDecoration: 'none', cursor: 'pointer', borderLeft: `4px solid ${alert.severity === "CRITICAL" ? "#ef4444" : alert.severity === "HIGH" ? "#f97316" : "#f59e0b"}`, height: '100%', transition: "transform 0.2s" }} onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.02)"} onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}>
-                                    <div className="alert-severity" style={{ color: alert.severity === "CRITICAL" ? "#ef4444" : "#f97316" }}>
-                                        ⚠ {alert.severity}
-                                    </div>
-                                    <h4>{alert.title}</h4>
-                                    <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", marginBottom: "8px" }}>{alert.description}</p>
-                                    <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{alert.targetArea}</span>
-                                </Link>
-                            </SwiperSlide>
-                        ))}
+                        {alerts.map((alert, i) => {
+                            const sevColor = alert.severity === "CRITICAL" ? "#ef4444" : alert.severity === "HIGH" ? "#f97316" : "#f59e0b";
+                            return (
+                                <SwiperSlide key={i}>
+                                    <Link to={`/alerts?city=${alert.targetArea}`} className="glass-panel" style={{ 
+                                        display: 'flex', flexDirection: 'column', padding: 24, textDecoration: 'none', 
+                                        borderLeft: `5px solid ${sevColor}`, height: '100%', position: "relative", overflow: "hidden"
+                                    }}>
+                                        <div style={{
+                                            position: "absolute", top: 0, right: 0,
+                                            padding: "4px 12px", background: `${sevColor}20`, color: sevColor,
+                                            borderBottomLeftRadius: 10, fontWeight: 800, fontSize: "0.65rem", letterSpacing: "0.06em"
+                                        }}>
+                                            {alert.severity}
+                                        </div>
+                                        <h4 style={{ fontSize: "1.1rem", marginBottom: 12, color: "var(--text-primary)", paddingRight: 60 }}>{alert.title}</h4>
+                                        <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", lineHeight: 1.6, marginBottom: 16 }}>
+                                            {alert.description?.substring(0, 100)}...
+                                        </p>
+                                        <div style={{ marginTop: "auto", display: "flex", alignItems: "center", gap: 6, fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: 600 }}>
+                                            <FiMapPin style={{ color: "var(--primary)" }} /> {alert.targetArea}
+                                        </div>
+                                    </Link>
+                                </SwiperSlide>
+                            );
+                        })}
                     </Swiper>
                 </section>
             )}
 
-            {/* Current AQI Overview */}
-            <section className="section">
-                <div className="section-header">
-                    <h2 className="section-title"><FiMapPin /> City Air Quality Overview</h2>
-                    <Link to="/aqi" className="btn btn-outline btn-sm">View All Cities <FiArrowRight size={14} /></Link>
+            {/* ── CITY OVERVIEW GRID ── */}
+            <section className="section" style={{ maxWidth: 1400, margin: "0 auto", padding: "0 24px" }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 16, marginBottom: 24 }}>
+                    <div>
+                        <h2 style={{ display: "flex", alignItems: "center", gap: 10, margin: "0 0 8px 0" }}>
+                            <FiActivity style={{ color: "var(--primary)" }} /> Regional Overview
+                        </h2>
+                        <p style={{ margin: 0, color: "var(--text-secondary)", fontSize: "0.95rem" }}>Live AQI indices aggregated from CPCB telemetry.</p>
+                    </div>
+                    
+                    <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                        <select 
+                            className="contact-input" 
+                            style={{ padding: '8px 36px 8px 16px', borderRadius: 8, height: 40, width: "auto" }}
+                            value={sortOption}
+                            onChange={(e) => setSortOption(e.target.value)}
+                        >
+                            <option value="highest">Most Polluted</option>
+                            <option value="lowest">Cleanest First</option>
+                            <option value="az">A-Z Alphabetical</option>
+                        </select>
+                        <Link to="/aqi" className="btn btn-outline" style={{ height: 40 }}>
+                            View All <FiArrowRight size={14} />
+                        </Link>
+                    </div>
                 </div>
+
                 {loading ? (
                     <div className="page-loader"><div className="loader-spinner"></div></div>
                 ) : (
-                    <Swiper
-                        modules={[Autoplay, EffectCoverflow, Pagination]}
-                        effect="coverflow"
-                        grabCursor={true}
-                        centeredSlides={true}
-                        slidesPerView={"auto"}
-                        coverflowEffect={{
-                            rotate: 15,
-                            stretch: 0,
-                            depth: 200,
-                            modifier: 1,
-                            slideShadows: false,
-                        }}
-                        autoplay={{ delay: 2500, disableOnInteraction: false, reverseDirection: true }}
-                        pagination={{ clickable: true }}
-                        style={{ paddingBottom: '50px', paddingTop: '20px' }}
-                    >
-                        {cities.slice(0, 8).map((city) => (
-                            <SwiperSlide key={city.city} style={{ width: '300px' }}>
-                                <Link to={`/city/${city.city}`} className="city-card glass-panel" style={{ display: 'block', height: '100%' }}>
-                                    <div className="city-card-header">
-                                        <h3>{city.city}</h3>
-                                        <span className="aqi-emoji">{getAqiEmoji(city.avgAQI)}</span>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 20 }}>
+                        {sortedCities.slice(0, 8).map((city) => {
+                            const aqiColor = getAqiColor(city.avgAQI);
+                            return (
+                                <Link to={`/city/${city.city}`} key={city.city} className="glass-panel" style={{ 
+                                    display: 'block', padding: 20, textDecoration: 'none',
+                                    borderTop: `4px solid ${aqiColor}`, position: "relative", overflow: "hidden"
+                                }}>
+                                    <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: `${aqiColor}15`, filter: "blur(20px)", pointerEvents: "none" }} />
+                                    
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+                                        <h3 style={{ margin: 0, fontSize: "1.2rem", color: "var(--text-primary)" }}>{city.city}</h3>
+                                        <div style={{ padding: "3px 10px", borderRadius: 20, fontSize: "0.7rem", fontWeight: 800, background: `${aqiColor}15`, color: aqiColor, border: `1px solid ${aqiColor}30` }}>
+                                            {getAqiCategory(city.avgAQI)}
+                                        </div>
                                     </div>
-                                    <div className="city-aqi-display" style={{ color: getAqiColor(city.avgAQI) }}>
-                                        {city.avgAQI}
+
+                                    <div style={{ display: "flex", alignItems: "flex-end", gap: 10, marginBottom: 16 }}>
+                                        <div style={{ fontSize: "2.8rem", fontWeight: 900, lineHeight: 0.8, color: aqiColor }}>{city.avgAQI}</div>
+                                        <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", paddingBottom: 3 }}>AQI</div>
                                     </div>
-                                    <div className="city-category" style={{ background: `${getAqiColor(city.avgAQI)}18`, color: getAqiColor(city.avgAQI) }}>
-                                        {getAqiCategory(city.avgAQI)}
+
+                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 16 }}>
+                                        <PollutantPill label="PM2.5" value={city.avgPM25} />
+                                        <PollutantPill label="PM10" value={city.avgPM10} />
                                     </div>
-                                    <div className="city-pollutants">
-                                        <span>PM2.5: {city.avgPM25}</span>
-                                        <span>PM10: {city.avgPM10}</span>
+
+                                    <div style={{ paddingTop: 12, borderTop: "1px solid var(--border-glass)", fontSize: "0.75rem", color: "var(--text-muted)" }}>
+                                        {city.stationCount} active station{city.stationCount !== 1 ? 's' : ''}
                                     </div>
-                                    <div className="city-stations">{city.stationCount} stations</div>
                                 </Link>
-                            </SwiperSlide>
-                        ))}
-                    </Swiper>
+                            );
+                        })}
+                    </div>
                 )}
             </section>
 
-            {/* Top Polluted Cities */}
-            {topPolluted.length > 0 && (
-                <section className="section">
-                    <h2 className="section-title"><FiAlertTriangle /> Most Polluted Cities</h2>
-                    <div className="polluted-list glass-panel">
-                        {topPolluted.map((city, i) => (
-                            <Link to={`/city/${city.city}`} key={city.city} className="polluted-item">
-                                <div className="polluted-rank">#{i + 1}</div>
-                                <div className="polluted-info">
-                                    <span className="polluted-name">{city.city}</span>
-                                    <span className="polluted-category" style={{ color: getAqiColor(city.avgAQI) }}>
-                                        {getAqiCategory(city.avgAQI)}
-                                    </span>
-                                </div>
-                                <div className="polluted-aqi" style={{ color: getAqiColor(city.avgAQI) }}>
-                                    AQI {city.avgAQI}
-                                </div>
-                                <div className="polluted-bar">
-                                    <div className="polluted-bar-fill" style={{ width: `${Math.min(100, city.avgAQI / 5)}%`, background: getAqiColor(city.avgAQI) }}></div>
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
-                </section>
-            )}
-
-            {/* AQI Categories */}
-            <section className="section">
-                <h2 className="section-title"><FiShield /> AQI Categories (CPCB India)</h2>
-                <div className="categories-grid">
+            {/* ── CPCB SCALE CATEGORIES ── */}
+            <section className="section" style={{ maxWidth: 1400, margin: "0 auto", padding: "0 24px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24, paddingBottom: 16, borderBottom: "1px solid var(--border-glass)" }}>
+                    <FiShield style={{ color: "var(--primary)", width: 22, height: 22 }} />
+                    <h2 style={{ margin: 0 }}>CPCB Compliance Scale</h2>
+                </div>
+                
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
                     {aqiCategories.map((cat) => (
-                        <div key={cat.label} className="category-card glass-panel" style={{ borderTop: `3px solid ${cat.color}` }}>
-                            <div className="category-range" style={{ color: cat.color }}>{cat.range}</div>
-                            <h4>{cat.label}</h4>
-                            <p style={{ color: "var(--text-secondary)", fontSize: "0.82rem" }}>{cat.desc}</p>
+                        <div key={cat.label} className="glass-panel" style={{ padding: 20, borderTop: `3px solid ${cat.color}` }}>
+                            <div style={{ fontSize: "1.4rem", fontWeight: 900, color: cat.color, marginBottom: 4 }}>{cat.range}</div>
+                            <h4 style={{ marginBottom: 8, fontSize: "1rem" }}>{cat.label}</h4>
+                            <p style={{ color: "var(--text-secondary)", fontSize: "0.8rem", margin: 0, lineHeight: 1.5 }}>{cat.desc}</p>
                         </div>
                     ))}
                 </div>
             </section>
 
-            {/* Health Recommendations */}
-            <section className="section">
-                <h2 className="section-title"><FiHeart /> Health Recommendations</h2>
-                <div className="health-grid">
+            {/* ── TARGETED HEALTH ADVISORIES ── */}
+            <section className="section" style={{ maxWidth: 1400, margin: "0 auto", padding: "0 24px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+                    <FiHeart style={{ color: "#ec4899", width: 22, height: 22 }} />
+                    <h2 style={{ margin: 0 }}>Targeted Health Advisories</h2>
+                </div>
+                <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", marginBottom: 24 }}>
+                    Standardised mitigation protocols based on Indian demographic vulnerability data.
+                </p>
+                
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 20 }}>
                     {[
-                        { group: "Children", icon: "👶", tip: "Reduce outdoor play when AQI exceeds 200. Keep classrooms well-ventilated." },
-                        { group: "Senior Citizens", icon: "👴", tip: "Avoid morning walks during high pollution. Use air purifiers indoors." },
-                        { group: "Outdoor Workers", icon: "👷", tip: "Wear N95 masks when AQI > 150. Take regular indoor breaks." },
-                        { group: "Asthma Patients", icon: "🫁", tip: "Keep rescue inhalers accessible. Consult doctors during high AQI days." },
+                        { group: "Children", icon: <FiUsers size={20} />, tip: "Reduce outdoor play when AQI exceeds 200. Keep classrooms well-ventilated." },
+                        { group: "Senior Citizens", icon: <FiClock size={20} />, tip: "Avoid morning walks during high pollution. Use air purifiers indoors." },
+                        { group: "Outdoor Workers", icon: <FiAlertCircle size={20} />, tip: "Wear N95 masks when AQI > 150. Take regular indoor breaks." },
+                        { group: "Asthma Patients", icon: <FiActivity size={20} />, tip: "Keep rescue inhalers accessible. Consult doctors during high AQI days." },
                     ].map((item) => (
-                        <div key={item.group} className="health-card glass-panel">
-                            <span className="health-icon">{item.icon}</span>
-                            <h4>{item.group}</h4>
-                            <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem" }}>{item.tip}</p>
+                        <div key={item.group} className="glass-panel" style={{ padding: 24, display: "flex", flexDirection: "column", gap: 12 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                <div style={{ color: "var(--primary)", padding: 8, background: "rgba(59,130,246,0.1)", borderRadius: 8, display: "flex" }}>
+                                    {item.icon}
+                                </div>
+                                <h4 style={{ margin: 0 }}>{item.group}</h4>
+                            </div>
+                            <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", lineHeight: 1.6, margin: 0 }}>{item.tip}</p>
                         </div>
                     ))}
+                    
+                    {/* General Public Full Width Card */}
+                    <div className="glass-panel" style={{ gridColumn: "1 / -1", padding: 24, display: "flex", alignItems: "center", gap: 24, background: "rgba(59,130,246,0.04)" }}>
+                        <div style={{ color: "#10b981", padding: 12, background: "rgba(16,185,129,0.1)", borderRadius: 12, display: "flex", flexShrink: 0 }}>
+                            <FiShield size={24} />
+                        </div>
+                        <div>
+                            <h4 style={{ marginBottom: 6 }}>General Public</h4>
+                            <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", margin: 0, lineHeight: 1.6 }}>
+                                Stay informed by checking AQI trajectories daily. Reduce strenuous outdoor activity during "Very Poor" or "Severe" days. Keep windows closed and utilise HEPA air purifiers where possible to mitigate indoor PM2.5 accumulation.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </section>
+            
         </div>
     );
 }

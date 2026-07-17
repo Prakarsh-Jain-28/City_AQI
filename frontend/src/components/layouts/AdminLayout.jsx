@@ -3,10 +3,12 @@ import { useAuth } from "../../context/AuthContext";
 import {
     FiGrid, FiActivity, FiRadio, FiTrendingUp, FiAlertTriangle,
     FiClipboard, FiBell, FiFileText, FiUsers, FiSettings,
-    FiUser, FiLogOut, FiMapPin, FiMenu, FiX, FiMessageSquare
+    FiUser, FiLogOut, FiMapPin, FiMenu, FiX, FiMessageSquare,
+    FiSun, FiMoon
 } from "react-icons/fi";
 import { useState, useEffect } from "react";
 import { useSocket } from "../../context/SocketContext";
+import { useTheme } from "../../context/ThemeContext";
 
 const sidebarLinks = [
     { path: "/admin/dashboard", label: "Dashboard", icon: <FiGrid /> },
@@ -41,6 +43,7 @@ export default function AdminLayout() {
     const navigate = useNavigate();
     const [collapsed, setCollapsed] = useState(false);
     const { socket, connected } = useSocket() || {};
+    const { theme, toggleTheme } = useTheme();
 
     useEffect(() => {
         if (connected && socket && user) {
@@ -61,6 +64,13 @@ export default function AdminLayout() {
 
     return (
         <div className="admin-layout">
+            {/* Ambient glow blobs — bleed through admin glassmorphic panels */}
+            <div className="glow-layer">
+                <div className="glow-blob glow-blob-1" />
+                <div className="glow-blob glow-blob-2" />
+                <div className="glow-blob glow-blob-3" />
+            </div>
+
             <aside className={`admin-sidebar glass-panel ${collapsed ? "collapsed" : ""}`}>
                 <div className="sidebar-header">
                     <div className="logo-badge" style={{ fontSize: collapsed ? "0.8rem" : "1rem" }}>
@@ -100,12 +110,17 @@ export default function AdminLayout() {
                             {getVisibleLinks(user).find(l => l.path === location.pathname)?.label || "Admin"}
                         </h2>
                     </div>
-                    <div className="header-user-info">
-                        <span style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>
-                            {user?.name || "Admin"}
-                        </span>
-                        <div className="user-avatar">
-                            {user?.name?.charAt(0) || "A"}
+                    <div className="header-user-info" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <button className="theme-toggle-btn" onClick={toggleTheme} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: '4px' }}>
+                            {theme === 'dark' ? <FiSun size={20} /> : <FiMoon size={20} />}
+                        </button>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>
+                                {user?.name || "Admin"}
+                            </span>
+                            <div className="user-avatar">
+                                {user?.name?.charAt(0) || "A"}
+                            </div>
                         </div>
                     </div>
                 </header>

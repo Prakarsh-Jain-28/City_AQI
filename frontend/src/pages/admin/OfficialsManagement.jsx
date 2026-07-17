@@ -87,11 +87,11 @@ export default function OfficialsManagement() {
             </div>
 
             {user?.role === "SUPER_ADMIN" && availableCities.length > 1 && (
-                <div className="glass-panel" style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 24px", overflowX: "auto", whiteSpace: "nowrap", marginBottom: 24 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, color: "white", fontWeight: "bold", fontSize: "1.1rem", marginRight: 8 }}>
+                <div className="glass-panel" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 16, padding: "16px 24px", marginBottom: 24 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--text-primary)", fontWeight: "bold", fontSize: "1.1rem", marginRight: 8 }}>
                         <FiMapPin /> Select City:
                     </div>
-                    <div style={{ display: "flex", gap: 12 }}>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
                         {availableCities.map(city => {
                             const isActive = selectedCity === city;
                             return (
@@ -99,9 +99,9 @@ export default function OfficialsManagement() {
                                     key={city}
                                     onClick={() => setSelectedCity(city)}
                                     style={{
-                                        background: isActive ? "var(--primary)" : "rgba(255,255,255,0.05)",
+                                        background: isActive ? "var(--primary)" : "var(--hover-bg)",
                                         color: isActive ? "white" : "var(--text-secondary)",
-                                        border: `1px solid ${isActive ? "var(--primary)" : "rgba(255,255,255,0.1)"}`,
+                                        border: `1px solid ${isActive ? "var(--primary)" : "var(--border-glass)"}`,
                                         padding: "8px 20px",
                                         borderRadius: 8,
                                         cursor: "pointer",
