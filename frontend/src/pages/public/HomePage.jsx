@@ -66,7 +66,7 @@ export default function HomePage() {
                     <div className="hero-orb orb-3"></div>
                 </div>
                 <div className="hero-content">
-                    <div className="hero-badge">🌍 ET AI Hackathon 2026</div>
+
                     <h1 className="hero-title">
                         Urban Air Quality<br />
                         <span className="gradient-text">Intelligence Platform</span>

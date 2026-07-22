@@ -1,6 +1,6 @@
 const Message = require("../models/Message");
 const User = require("../models/User");
-const { notifyAdmins } = require("../utils/notifier");
+const { notifyAdmins, notifyUser } = require("../utils/notifier");
 const { getIO } = require("../sockets/socket");
 const EVENTS = require("../sockets/socketEvents");
 
@@ -113,6 +113,11 @@ async function sendMessage(req, res) {
         }
 
         const sender = await User.findById(senderId);
+        await notifyUser(
+            receiverId,
+            "New Chat Message",
+            `Message from ${sender ? sender.name : 'User'}: "${content.length > 50 ? content.substring(0, 50) + '...' : content}"`
+        );
         notifyAdmins("New Message Received", `New message received from ${sender ? sender.name : 'an officer'}.`);
 
         return res.status(201).json({

@@ -34,6 +34,31 @@ async function seed() {
         });
         console.log("Seeded Super Admin successfully.");
 
+        // Seed City Admin
+        console.log("Seeding city admin...");
+        const cityAdminPasswordHash = await bcrypt.hash("citypassword", 8);
+        await User.create({
+            name: "Delhi City Admin",
+            email: "cityadmin@cityaqi.com",
+            password: cityAdminPasswordHash,
+            role: "CITY_ADMIN",
+            city: "Delhi",
+            phone: "8888888888",
+        });
+
+        // Seed Officer
+        console.log("Seeding officer...");
+        const officerPasswordHash = await bcrypt.hash("delhiofficer", 8);
+        await User.create({
+            name: "Delhi Officer",
+            email: "delhiofficer@cityaqi.com",
+            password: officerPasswordHash,
+            role: "OFFICER",
+            city: "Delhi",
+            phone: "7777777777",
+        });
+        console.log("Seeded City Admin and Officer successfully.");
+
         // 3. Seed Monitoring Stations
         console.log("Seeding stations...");
         const stations = [

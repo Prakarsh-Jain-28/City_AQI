@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { getStations, createStation, updateStation, deleteStation } from "../../api/adminApi";
 import { FiPlus, FiEdit2, FiTrash2, FiRadio, FiMapPin, FiActivity, FiSettings, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
@@ -22,6 +23,7 @@ const CityBtn = ({ city, isActive, onClick }) => (
 
 export default function StationsManagement() {
     const { user } = useAuth();
+    const [searchParams] = useSearchParams();
     const [selectedCity, setSelectedCity] = useState("All");
     const [stations, setStations] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -38,6 +40,13 @@ export default function StationsManagement() {
     };
 
     useEffect(() => { fetchStations(); }, []);
+
+    useEffect(() => {
+        if (searchParams.get("action") === "addNode") {
+            setEditingId(null);
+            setShowModal(true);
+        }
+    }, [searchParams]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -204,7 +213,7 @@ export default function StationsManagement() {
             {/* ── Provisioning Modal ── */}
             {showModal && (
                 <div className="modal-overlay" style={{ backdropFilter: "blur(12px)", backgroundColor: "rgba(0,0,0,0.6)" }}>
-                    <div className="modal-content glass-panel" style={{ maxWidth: 700, padding: 0, overflow: "hidden", border: "1px solid var(--border-glass)" }}>
+                    <div className="modal-content glass-panel" style={{ maxWidth: 700, padding: 0, maxHeight: "90vh", overflowY: "auto", border: "1px solid var(--border-glass)" }}>
                         
                         <div style={{ padding: "24px 32px", borderBottom: "1px solid var(--border-glass)", display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--hover-bg)" }}>
                             <h2 style={{ margin: 0, display: "flex", alignItems: "center", gap: 10, fontSize: "1.4rem" }}>
@@ -269,8 +278,8 @@ export default function StationsManagement() {
 
                             <div style={{ marginTop: 40, display: "flex", justifyContent: "flex-end", gap: 16 }}>
                                 <button type="button" className="btn btn-outline" style={{ height: 44, padding: "0 24px" }} onClick={() => setShowModal(false)}>Cancel Action</button>
-                                <button type="submit" className="btn btn-primary" style={{ height: 44, padding: "0 32px" }}>
-                                    {editingId ? "Commit Configuration" : "Deploy Node"}
+                                <button type="submit" className="btn btn-primary" style={{ height: 44, padding: "0 32px", display: "flex", alignItems: "center", gap: 8 }}>
+                                    <FiPlus /> {editingId ? "Commit Configuration" : "Add Provision New Node"}
                                 </button>
                             </div>
                         </form>

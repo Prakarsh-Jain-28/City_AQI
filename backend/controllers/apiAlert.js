@@ -1,5 +1,6 @@
 const Alert = require("../models/Alert");
-const { notifyAdmins } = require("../utils/notifier");
+const { notifyAdmins, notifyUser } = require("../utils/notifier");
+const User = require("../models/User");
 const { getIO } = require("../sockets/socket");
 const EVENTS = require("../sockets/socketEvents");
 
@@ -144,6 +145,24 @@ async function broadcastAlert(req, res) {
 
         const populatedAlert = await Alert.findById(alert._id)
             .populate("createdBy", "name email role");
+
+        // Notify affected users in target city
+        try {
+            const query = {};
+            if (targetArea && targetArea !== "All Regions") {
+                query.city = targetArea;
+            }
+            const users = await User.find(query);
+            for (const u of users) {
+                await notifyUser(
+                    u._id,
+                    `Emergency Alert: ${severity}`,
+                    `${title}. ${description}`
+                );
+            }
+        } catch (err) {
+            console.error("Failed to generate broadcast notifications:", err);
+        }
 
         const io = getIO();
         if (io) {

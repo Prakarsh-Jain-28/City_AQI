@@ -82,6 +82,15 @@ export default function Dashboard() {
                         <FiShield size={13} />
                         Command Centre Active
                     </div>
+                    
+                    <div style={{ display: "flex", gap: 12 }}>
+                        <button className="btn btn-outline" style={{ height: 36, padding: "0 16px", fontSize: "0.85rem" }} onClick={() => navigate('/admin/stations?action=addNode')}>
+                            <FiActivity size={14} style={{ marginRight: 6 }}/> Add Provision New Node
+                        </button>
+                        <button className="btn" style={{ background: "rgba(239,68,68,0.15)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.3)", height: 36, padding: "0 16px", fontSize: "0.85rem", fontWeight: 600 }} onClick={() => navigate('/admin/alerts?action=broadcastAlert')}>
+                            <FiRadio size={14} style={{ marginRight: 6 }}/> Add Broadcast New Alert
+                        </button>
+                    </div>
                 </div>
                 <h1 style={{ fontSize: "2.2rem", margin: "0 0 8px 0", color: "var(--text-primary)" }}>Global Operations Overview</h1>
                 <p style={{ color: "var(--text-secondary)", fontSize: "1.05rem", maxWidth: 650 }}>

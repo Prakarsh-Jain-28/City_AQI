@@ -24,4 +24,21 @@ async function notifyAdmins(title, message) {
     }
 }
 
-module.exports = { notifyAdmins };
+async function notifyUser(userId, title, message) {
+    try {
+        const io = getIO();
+        const notif = await Notification.create({
+            title,
+            message,
+            recipient: userId
+        });
+        
+        if (io) {
+            io.to(`user_${userId}`).emit(EVENTS.NEW_NOTIFICATION, notif);
+        }
+    } catch (err) {
+        console.error("Failed to notify user:", err);
+    }
+}
+
+module.exports = { notifyAdmins, notifyUser };

@@ -1,5 +1,5 @@
 const Assignment = require("../models/Assignment");
-const { notifyAdmins } = require("../utils/notifier");
+const { notifyAdmins, notifyUser } = require("../utils/notifier");
 const Hotspot = require("../models/Hotspot");
 const { getIO } = require("../sockets/socket");
 const EVENTS = require("../sockets/socketEvents");
@@ -62,6 +62,12 @@ async function createAssignment(req, res) {
             .populate("officer", "name email phone city role")
             .populate("hotspotId", "name location severity aqi status");
 
+        await notifyUser(
+            officer,
+            "New Assignment Dispatch",
+            `You have been assigned to handle hotspot: ${populatedAssignment.hotspotId.name} at ${populatedAssignment.hotspotId.location}.`
+        );
+
         const io = getIO();
         if (io) {
             io.emit(EVENTS.NEW_ASSIGNMENT, populatedAssignment);
@@ -117,6 +123,11 @@ async function updateAssignment(req, res) {
 
         if (status === "COMPLETED") {
             await Hotspot.findByIdAndUpdate(assignment.hotspotId._id, { status: "RESOLVED" });
+            await notifyUser(
+                assignment.officer._id || assignment.officer,
+                "Assignment Completed & Verified",
+                `Your dispatch for hotspot: ${assignment.hotspotId?.name || "Hotspot"} has been verified and completed.`
+            );
         }
 
         const io = getIO();

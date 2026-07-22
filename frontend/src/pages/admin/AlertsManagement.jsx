@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { getAlerts, broadcastAlert, deleteAlert } from "../../api/adminApi";
 import { formatDateTime, getSeverityColor } from "../../utils/aqiHelpers";
-import { FiAlertTriangle, FiRadio, FiTrash2, FiClock, FiMapPin, FiShield, FiUser } from "react-icons/fi";
+import { FiAlertTriangle, FiRadio, FiTrash2, FiClock, FiMapPin, FiShield, FiUser, FiPlus } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 import { useSocket } from "../../context/SocketContext";
 import { useSearchParams } from "react-router-dom";
@@ -63,9 +63,12 @@ export default function AlertsManagement() {
 
     useEffect(() => {
         const broadcastCity = searchParams.get("broadcast");
+        const action = searchParams.get("action");
         if (broadcastCity) {
             setFormData(prev => ({ ...prev, targetArea: broadcastCity }));
             setShowModal(true);
+        } else if (action === "broadcastAlert") {
+            handleOpenModal();
         }
     }, [searchParams]);
 
@@ -220,7 +223,7 @@ export default function AlertsManagement() {
             {/* ── Broadcast Modal ── */}
             {showModal && (
                 <div className="modal-overlay" style={{ backdropFilter: "blur(12px)", backgroundColor: "rgba(0,0,0,0.6)" }}>
-                    <div className="modal-content glass-panel" style={{ maxWidth: 650, padding: 0, overflow: "hidden", border: "1px solid var(--border-glass)" }}>
+                    <div className="modal-content glass-panel" style={{ maxWidth: 650, padding: 0, maxHeight: "90vh", overflowY: "auto", border: "1px solid var(--border-glass)" }}>
                         
                         <div style={{ padding: "24px 32px", borderBottom: "1px solid var(--border-glass)", display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--hover-bg)" }}>
                             <h2 style={{ margin: 0, display: "flex", alignItems: "center", gap: 10, fontSize: "1.4rem", color: "#ef4444" }}>
@@ -306,7 +309,7 @@ export default function AlertsManagement() {
                             <div style={{ marginTop: 40, display: "flex", justifyContent: "flex-end", gap: 16 }}>
                                 <button type="button" className="btn btn-outline" style={{ height: 44, padding: "0 24px" }} onClick={() => setShowModal(false)}>Cancel</button>
                                 <button type="submit" className="btn btn-primary" style={{ height: 44, padding: "0 28px", background: "#ef4444", borderColor: "#ef4444", color: "#fff", display: "flex", alignItems: "center", gap: 8 }}>
-                                    <FiRadio /> Transmit Now
+                                    <FiPlus /> Add Broadcast New Alert
                                 </button>
                             </div>
                         </form>
